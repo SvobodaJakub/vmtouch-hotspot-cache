@@ -1,0 +1,19 @@
+[Unit]
+Description=vmtouch_hotspot_preload_boot_early
+DefaultDependencies=no
+Requires=local-fs.target
+After=local-fs.target
+Before=plymouth-read-write.service nfs-config.service dracut-shutdown.service systemd-tmpfiles-setup.service auditd.service var-lib-nfs-rpc_pipefs.mount rpc_pipefs.target systemd-update-utmp.service sysinit.target iscsid.socket systemd-tmpfiles-clean.timer avahi-daemon.socket dnf-makecache.timer cups.path paths.target cups.socket iscsiuio.socket dbus.socket sockets.target basic.target avahi-daemon.service gssproxy.service irqbalance.service smartd.service rngd.service dbus.service rsyslog.service firewalld.service mcelog.service chronyd.service livesys.service vboxdrv.service accounts-daemon.service rtkit-daemon.service ModemManager.service systemd-logind.service unbound-anchor.timer timers.target livesys-late.service nfs-client.target 
+
+# analyze and debug with systemd-analyze verify vmtouch_hotspot_preload_boot_early.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+SELinuxContext=system_u:system_r:unconfined_t:s0
+WorkingDirectory=/some/path/bin/vmtouch-hotspot-cache/tmpdir
+ExecStart=/bin/bash /some/path/bin/vmtouch-hotspot-cache/tmpdir/vmtouch_state_exec_boot_early.sh
+
+
+[Install]
+WantedBy=basic.target

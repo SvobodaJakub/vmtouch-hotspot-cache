@@ -1,0 +1,16 @@
+[Unit]
+Description=vmtouch_hotspot_preload_boot_late
+Requires=multi-user.target
+After=multi-user.target
+
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+SELinuxContext=system_u:system_r:unconfined_t:s0
+WorkingDirectory=/some/path/bin/vmtouch-hotspot-cache
+ExecStart=/bin/bash /some/path/bin/vmtouch-hotspot-cache/cache-processed-stats-and-exit.sh /some/path/bin/vmtouch-hotspot-cache/tmpdir
+
+
+[Install]
+WantedBy=multi-user.target
