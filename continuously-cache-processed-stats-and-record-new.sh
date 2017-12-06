@@ -206,8 +206,8 @@ vmtouch_save_incremental_new_small_files() {
     # create exclude list
     ionice -c 3 nice -n 19 cat "$tmpdir/vmtouch_state_exec_primary.sh" "$tmpdir/vmtouch_state_exec_incremental-old"*".sh" | nice -n 19 grep -E '^/' > "$tmpdir/vmtouch_state_exec_incremental_exclude_list.txt"
 
-    # record at most 10 MB worth of files that are at most 40 kB in size, excluding any that are already recorded
-    ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state_incremental.sh" "$tmpdir/vmtouch_state_exec_incremental.sh" 40 10 "$tmpdir/vmtouch_state_exec_incremental_exclude_list.txt" >>"$tmpdir/log_continually-cache-processed-stats-and-record-new.txt" 2>&1 
+    # record at most 10 MB worth of files that are at most 4 kB in size, excluding any that are already recorded
+    ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state_incremental.sh" "$tmpdir/vmtouch_state_exec_incremental.sh" 4 10 "$tmpdir/vmtouch_state_exec_incremental_exclude_list.txt" >>"$tmpdir/log_continually-cache-processed-stats-and-record-new.txt" 2>&1 
 
     # move the file names, delete oldest
     vmtouch_move_cache_fifo
@@ -219,8 +219,8 @@ vmtouch_save_incremental_new_large_files() {
     # create exclude list
     ionice -c 3 nice -n 19 cat "$tmpdir/vmtouch_state_exec_primary.sh" "$tmpdir/vmtouch_state_exec_incremental-old"*".sh" | nice -n 19 grep -E '^/' > "$tmpdir/vmtouch_state_exec_incremental_exclude_list.txt"
 
-    # record at most 20 MB worth of files that are at most 10 MB in size, excluding any that are already recorded
-    ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state_incremental.sh" "$tmpdir/vmtouch_state_exec_incremental.sh" 10000 20 "$tmpdir/vmtouch_state_exec_incremental_exclude_list.txt" >>"$tmpdir/log_continually-cache-processed-stats-and-record-new.txt" 2>&1 
+    # record at most 20 MB worth of files that are at most 128 kb in size, excluding any that are already recorded
+    ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state_incremental.sh" "$tmpdir/vmtouch_state_exec_incremental.sh" 128 20 "$tmpdir/vmtouch_state_exec_incremental_exclude_list.txt" >>"$tmpdir/log_continually-cache-processed-stats-and-record-new.txt" 2>&1 
 
     # move the file names, delete oldest
     vmtouch_move_cache_fifo
@@ -228,8 +228,8 @@ vmtouch_save_incremental_new_large_files() {
 
 
 vmtouch_load_hold() {
-    # grep all the vmtouch commands from the saved files, rewrite its arguments to be held in memory (and slighly lower the file size limit from the default 10 MB), delete the output redirection to the log file, make them run in the background
-    cat "$tmpdir/vmtouch_state_exec_"*".sh" | grep -E '^(ionice -c 3 nice -n 19 )?vmtouch ' | sed -r 's/^(.*)-m [0-9]*k -v -t -f/\n\n\nionice -c 3 nice -n 19 vmtouch -m 8000k -t -f -L /' | sed -r 's/>>.*$//' | sed -r 's/(....*)/\1 \&/g' > "$tmpdir/tmp_hold_vmtouch_state_exec.sh"
+    # grep all the vmtouch commands from the saved files, rewrite its arguments to be held in memory (and limit the file size to 64k), delete the output redirection to the log file, make them run in the background
+    cat "$tmpdir/vmtouch_state_exec_"*".sh" | grep -E '^(ionice -c 3 nice -n 19 )?vmtouch ' | sed -r 's/^(.*)-m [0-9]*k -v -t -f/\n\n\nionice -c 3 nice -n 19 vmtouch -m 64k -t -f -L /' | sed -r 's/>>.*$//' | sed -r 's/(....*)/\1 \&/g' > "$tmpdir/tmp_hold_vmtouch_state_exec.sh"
 
     ionice -c 3 nice -n 19 bash "$tmpdir/tmp_hold_vmtouch_state_exec.sh" >/dev/null 2>&1 & 
 
@@ -266,9 +266,6 @@ loopcount=$((0))
 
 date
 
-echo "tweaking system settings"
-bash "$scriptdirname/tune-kernel-caching-hdd.sh"
-
 echo "loading incremental cache files"
 vmtouch_load_incremental
 
@@ -299,7 +296,7 @@ while true ; do
 
     echo "recording new loaded files"
     # at most 30 MB per an hour * 40 hours (2 files per hour) == 1200 MB of cache
-    # + at most 2500 MB from the primary cache == 3700 MB of cache at most at any time (acceptable for 8 GB RAM and a moderate workload)
+    # + at most 500 MB from the primary cache == 1700 MB of cache at most at any time
     vmtouch_save_incremental_new_small_files  # cache very small files (because these slow the disk down the most)
     vmtouch_save_incremental_new_large_files  # cache also larger files (random access inside larger files also slows the disk down a lot)
 

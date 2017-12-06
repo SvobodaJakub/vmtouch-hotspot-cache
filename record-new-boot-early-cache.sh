@@ -26,8 +26,8 @@ fi
 
 
 
-# record at most 600 MB worth of files
-ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state.sh" "$tmpdir/_tmp_vmtouch_state_exec_boot_early.sh" 4000 600 
+# record at most 600 MB worth of files of size at most 512 kB
+ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state.sh" "$tmpdir/_tmp_vmtouch_state_exec_boot_early.sh" 512 600 
 
 
 

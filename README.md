@@ -1,17 +1,18 @@
 # vmtouch-hotspot-cache
 
-tool to pre-cache most frequently used files on a slow block device
+tool to pre-cache most frequently used files on a moderately slow block device
 
 ## introduction
 
-* these scripts are intended to be used on a linux system with a conventional rotating hard disk (HDD) to cache some of the frequent requested files into memory before they are needed
+* these scripts are intended to be used on a linux system with an SDD to cache some of the frequent requested small files into memory before they are needed
 * cached files are periodically recorded (cached == recently used)
 * recordings can later be used to pre-cache the data
 * traditionally, if a disk read operation is performed for the second time, it is read from cache and is fast; but if the machine has been rebooted or a large file operation flushed the cache, the same read operation will be read from disk and will be as slow as if performed for the first time
 * a large portion of daily work just reads the same set of files repeatedly every day
 * the idea is to find out which files are read frequently and cache them proactively so that disk operations are faster 
-* it is more convenient to start your computer, let this script run for 10 minutes (pre-caching a sizable chunk of files you are about to use) and do something else in the meantime and then return to a fast computer and do your work than to start your computer aanndd eevveerryy aaccttiioonn iiss ssoo ssllooww uunnttiill eevveerryytthhiinngg ffiinnaallyy ccaaccheess iinnttoo rraamm and that is usually the time you are about done with the work and the cache is mostly useless for today
-* it's an unpolished turd - I developed the tool in a hurry being fed up with my sloooow HDD that I will use for about another year before finally buying an SSD; it does what I want and that's it; so the future for this tool is not very bright and I chose not to polish it; however, pull requests are welcome because maybe it will be immensely useful for someone else :)
+* it's an unpolished turd - I developed the tool in a hurry
+* this is mildly useful for SSDs that are relatively slow on tiny reads (e.g. 5000 IOPS on 4k reads)
+* it pre-caches the inodes after startup so that some file operations are faster (traversing through directory structure)
 
 
 ## technical considerations
@@ -47,7 +48,7 @@ tool to pre-cache most frequently used files on a slow block device
 
 * prerequisite - "first recording run and systemd" has already been performed
 * `vmtouch_hotspot_preload_boot_early.service` preloads boot files during the boot process, resulting in the same read data but in a sequential manner, which is much faster on a spinning HDD than the default way of booting, at least on Fedora
-* `vmtouch_hotspot_preload_boot_late.service` loads all the recorded caches during about 10 minutes after boot
+* `vmtouch_hotspot_preload_boot_late.service` loads all the recorded caches upon boot
 * no more processes are then run and nothing recorded, unless you run the above command manually
 
 ## more info
@@ -62,10 +63,7 @@ tool to pre-cache most frequently used files on a slow block device
 ## performance considerations
 
 * no support for partially loading files - for only loading the used pages of files
-* sizes of what is loaded might need to be changed based on the amount of RAM in your system and based on your workload
-* `vmtouch` scanning for which files are cached takes several minutes of full disk activity - it might actually hurt the performance for your particular workload
-* you might want to change the parameters in `tune-kernel-caching-hdd.sh`
-* If you want to drastically reduce the amount of cached data, reduce not only the max amount of cached data, but also reduce the max file size to something like 64 - 256 kB. HDDs are slowest at random operations, which often includes reading small files, and the smaller, the more random.
+* caches only the very small files because that is the only bottleneck of slow SSDs (with slow, I mean around 5000 IOPS)
 
 
 

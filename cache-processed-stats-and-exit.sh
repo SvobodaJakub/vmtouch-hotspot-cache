@@ -29,9 +29,6 @@ date >>"$tmpdir/log-cache-processed-stats-and-exit.txt" 2>&1
 id >>"$tmpdir/log-cache-processed-stats-and-exit.txt" 2>&1 
 
 
-bash "$scriptdirname/tune-kernel-caching-hdd.sh"
-
-
 vmtouch_load_primary() {
     ionice -c 3 nice -n 19 bash "$tmpdir/vmtouch_state_exec_primary.sh" >>"$tmpdir/log-cache-processed-stats-and-exit.txt" 2>&1 
 }
@@ -123,7 +120,7 @@ vmtouch_load_incremental() {
 }
 
 # let the rest of the computer start (assuming this is started by systemd)
-sleep 100
+sleep 10
 
 vmtouch_load_incremental || true
 

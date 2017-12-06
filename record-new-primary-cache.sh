@@ -24,6 +24,6 @@ cd "$tmpdir"
 date >>"$tmpdir/log_continually-cache-processed-stats-and-record-new.txt" 2>&1 
 
 
-# record at most 2500 MB worth of files
-ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state.sh" "$tmpdir/vmtouch_state_exec_primary.sh" 20000 2500 >>"$tmpdir/log_continually-cache-processed-stats-and-record-new.txt" 2>&1 
+# record at most 500 MB worth of small files
+ionice -c 3 nice -n 19 bash "$scriptdirname/vmtouch_cache_save_load/vmtouch_save_state.sh" "$tmpdir/vmtouch_state_exec_primary.sh" 128 500 >>"$tmpdir/log_continually-cache-processed-stats-and-record-new.txt" 2>&1 
 
