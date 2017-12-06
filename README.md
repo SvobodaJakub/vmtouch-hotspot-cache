@@ -66,6 +66,7 @@ tool to pre-cache most frequently used files on a slow block device
 * `vmtouch` scanning for which files are cached takes several minutes of full disk activity - it might actually hurt the performance for your particular workload
 * you might want to change the parameters in `tune-kernel-caching-hdd.sh`
 * If you want to drastically reduce the amount of cached data, reduce not only the max amount of cached data, but also reduce the max file size to something like 64 - 256 kB. HDDs are slowest at random operations, which often includes reading small files, and the smaller, the more random.
+* [a branch suited for slow SSDs exists](https://github.com/SvobodaJakub/vmtouch-hotspot-cache/tree/ssd)
 
 
 
